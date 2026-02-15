@@ -2,6 +2,9 @@
 
 You are configuring and extending **Superhuman Alpha Fund**, a multi-agent, fundamentals-driven investment analysis system.
 
+Whenever you need a quick lookup of names, paths, or interfaces, first check `org_config.md`. If something disagrees with `specifications.md`, treat `specifications.md` as authoritative and ask the human to fix the config file. [file:37]
+
+
 ## Canonical specification
 
 - The single source of truth for this project is `specifications.md` at the repo root.

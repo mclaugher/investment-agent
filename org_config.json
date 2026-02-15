@@ -1,0 +1,332 @@
+{
+  "project": "Superhuman Alpha Fund",
+  "version": "0.1.0",
+
+  "agents": [
+    {
+      "name": "ceo_agent",
+      "role": "ceo",
+      "file": "backend/app/agents/ceo_agent.py",
+      "reports_to": "human",
+      "tools": ["report_tools", "portfolio_tools"],
+      "description": "Final investment decisions, executive summary, enforce all constraints"
+    },
+    {
+      "name": "cio_agent",
+      "role": "cio",
+      "file": "backend/app/agents/supervisors/cio_agent.py",
+      "reports_to": "ceo_agent",
+      "tools": ["report_tools", "portfolio_tools"],
+      "description": "Aggregate sector + FI recommendations, propose allocation changes"
+    },
+    {
+      "name": "risk_manager",
+      "role": "risk_manager",
+      "file": "backend/app/agents/supervisors/risk_manager.py",
+      "reports_to": "ceo_agent",
+      "tools": ["portfolio_tools", "market_tools", "report_tools"],
+      "description": "Independent risk assessment, concentration analysis, VETO authority"
+    },
+    {
+      "name": "sector_supervisor_a",
+      "role": "supervisor",
+      "file": "backend/app/agents/supervisors/sector_supervisor.py",
+      "reports_to": "cio_agent",
+      "sectors": ["technology", "healthcare", "financials"],
+      "tools": ["report_tools"],
+      "description": "Synthesize analyst reports for tech, healthcare, financials sectors"
+    },
+    {
+      "name": "sector_supervisor_b",
+      "role": "supervisor",
+      "file": "backend/app/agents/supervisors/sector_supervisor.py",
+      "reports_to": "cio_agent",
+      "sectors": ["energy", "consumer", "industrials", "real_estate", "utilities"],
+      "tools": ["report_tools"],
+      "description": "Synthesize analyst reports for energy, consumer, industrials, real estate, utilities sectors"
+    },
+    {
+      "name": "fixed_income_supervisor",
+      "role": "supervisor",
+      "file": "backend/app/agents/supervisors/fixed_income_supervisor.py",
+      "reports_to": "cio_agent",
+      "tools": ["report_tools"],
+      "description": "Aggregate fixed income recommendations, allocation suggestion"
+    },
+    {
+      "name": "macro_supervisor",
+      "role": "supervisor",
+      "file": "backend/app/agents/supervisors/macro_supervisor.py",
+      "reports_to": "ceo_agent",
+      "tools": ["report_tools"],
+      "description": "Economic environment synthesis, risk backdrop"
+    },
+    {
+      "name": "filing_analyst",
+      "role": "analyst",
+      "file": "backend/app/agents/analysts/base_analyst.py",
+      "instances": 8,
+      "instance_note": "One per sector, created via create_sector_team() factory",
+      "reports_to": "sector_supervisor",
+      "tools": ["sec_tools", "report_tools"],
+      "description": "Parse 10-K/10-Q, extract key metrics, identify risk factors, analyze MD&A"
+    },
+    {
+      "name": "earnings_analyst",
+      "role": "analyst",
+      "file": "backend/app/agents/analysts/base_analyst.py",
+      "instances": 8,
+      "instance_note": "One per sector, created via create_sector_team() factory",
+      "reports_to": "sector_supervisor",
+      "tools": ["transcript_tools", "report_tools"],
+      "description": "Analyze earnings transcripts, detect tone shifts, compare guidance"
+    },
+    {
+      "name": "quant_analyst",
+      "role": "analyst",
+      "file": "backend/app/agents/analysts/base_analyst.py",
+      "instances": 8,
+      "instance_note": "One per sector, created via create_sector_team() factory",
+      "reports_to": "sector_supervisor",
+      "tools": ["fundamental_tools", "market_tools", "sentiment_tools", "report_tools"],
+      "description": "Financial ratios, DCF modeling, peer comps, sentiment overlay"
+    },
+    {
+      "name": "bond_analyst",
+      "role": "analyst",
+      "file": "backend/app/agents/fixed_income/bond_analyst.py",
+      "reports_to": "fixed_income_supervisor",
+      "tools": ["market_tools", "report_tools"],
+      "description": "Treasury yields, corporate bond ETF analysis, duration risk"
+    },
+    {
+      "name": "credit_analyst",
+      "role": "analyst",
+      "file": "backend/app/agents/fixed_income/credit_analyst.py",
+      "reports_to": "fixed_income_supervisor",
+      "tools": ["market_tools", "report_tools"],
+      "description": "Credit spreads, default risk indicators, rating changes"
+    },
+    {
+      "name": "rate_analyst",
+      "role": "analyst",
+      "file": "backend/app/agents/fixed_income/rate_analyst.py",
+      "reports_to": "fixed_income_supervisor",
+      "tools": ["market_tools", "report_tools"],
+      "description": "Fed funds rate outlook, yield curve analysis, inflation expectations"
+    },
+    {
+      "name": "macro_analyst",
+      "role": "analyst",
+      "file": "backend/app/agents/macro/macro_analyst.py",
+      "reports_to": "macro_supervisor",
+      "tools": ["market_tools", "report_tools"],
+      "description": "GDP, employment, inflation, consumer confidence analysis"
+    },
+    {
+      "name": "geopolitical_analyst",
+      "role": "analyst",
+      "file": "backend/app/agents/macro/geopolitical_analyst.py",
+      "reports_to": "macro_supervisor",
+      "tools": ["report_tools"],
+      "description": "Geopolitical risk assessment, trade policy, sanctions impact"
+    },
+    {
+      "name": "orchestrator",
+      "role": "orchestrator",
+      "file": "backend/app/agents/orchestrator.py",
+      "reports_to": null,
+      "tools": [],
+      "description": "Builds and compiles the full multi-agent LangGraph hierarchy"
+    }
+  ],
+
+  "agent_sector_files": {
+    "technology": "backend/app/agents/analysts/tech_analyst.py",
+    "healthcare": "backend/app/agents/analysts/healthcare_analyst.py",
+    "financials": "backend/app/agents/analysts/financials_analyst.py",
+    "energy": "backend/app/agents/analysts/energy_analyst.py",
+    "consumer": "backend/app/agents/analysts/consumer_analyst.py",
+    "industrials": "backend/app/agents/analysts/industrials_analyst.py",
+    "real_estate": "backend/app/agents/analysts/realestate_analyst.py",
+    "utilities": "backend/app/agents/analysts/utilities_analyst.py"
+  },
+
+  "tools": [
+    {
+      "module": "sec_tools",
+      "file": "backend/app/agents/tools/sec_tools.py",
+      "functions": [
+        "fetch_10k_filing",
+        "fetch_10q_filing",
+        "search_filing_content",
+        "get_recent_filings"
+      ]
+    },
+    {
+      "module": "market_tools",
+      "file": "backend/app/agents/tools/market_tools.py",
+      "functions": [
+        "get_stock_price",
+        "get_price_history",
+        "get_market_overview",
+        "get_sector_etf_performance"
+      ]
+    },
+    {
+      "module": "fundamental_tools",
+      "file": "backend/app/agents/tools/fundamental_tools.py",
+      "functions": [
+        "get_financial_ratios",
+        "run_dcf_analysis",
+        "get_comparable_analysis"
+      ]
+    },
+    {
+      "module": "sentiment_tools",
+      "file": "backend/app/agents/tools/sentiment_tools.py",
+      "functions": [
+        "get_social_sentiment",
+        "get_news_sentiment",
+        "get_insider_trading"
+      ]
+    },
+    {
+      "module": "transcript_tools",
+      "file": "backend/app/agents/tools/transcript_tools.py",
+      "functions": [
+        "get_earnings_transcript",
+        "analyze_transcript_sentiment",
+        "compare_guidance"
+      ]
+    },
+    {
+      "module": "portfolio_tools",
+      "file": "backend/app/agents/tools/portfolio_tools.py",
+      "functions": [
+        "get_current_holdings",
+        "get_cash_balance",
+        "get_risk_profile",
+        "get_portfolio_metrics",
+        "validate_trade",
+        "execute_trade"
+      ]
+    },
+    {
+      "module": "report_tools",
+      "file": "backend/app/agents/tools/report_tools.py",
+      "functions": [
+        "save_analysis_report",
+        "get_reports_for_symbol",
+        "get_reports_by_agent",
+        "get_decision_trail",
+        "get_latest_sector_reports"
+      ]
+    }
+  ],
+
+  "models": [
+    {
+      "name": "Holding",
+      "table": "holdings",
+      "file": "backend/app/models/portfolio.py",
+      "key_fields": ["id", "symbol", "asset_type", "shares", "avg_cost_basis", "current_price", "sector", "acquired_at"]
+    },
+    {
+      "name": "Transaction",
+      "table": "transactions",
+      "file": "backend/app/models/portfolio.py",
+      "key_fields": ["id", "symbol", "action", "shares", "price_per_share", "total_amount", "fees", "agent_decision_id", "executed_at"],
+      "constraints": ["action IN ('BUY','SELL')", "shares > 0"]
+    },
+    {
+      "name": "CashBalance",
+      "table": "cash_balances",
+      "file": "backend/app/models/portfolio.py",
+      "key_fields": ["id", "balance", "updated_at"],
+      "constraints": ["balance >= 0"]
+    },
+    {
+      "name": "RiskProfile",
+      "table": "risk_profiles",
+      "file": "backend/app/models/portfolio.py",
+      "key_fields": ["id", "aggressiveness", "max_single_position_pct", "max_sector_pct", "min_cash_pct", "target_equity_pct", "target_fixed_income_pct", "target_cash_pct", "updated_by"],
+      "constraints": ["aggressiveness BETWEEN 1 AND 10"]
+    },
+    {
+      "name": "AnalysisReport",
+      "table": "analysis_reports",
+      "file": "backend/app/models/reports.py",
+      "key_fields": ["id", "agent_name", "agent_role", "report_type", "symbol", "sector", "title", "content", "recommendation", "confidence", "key_metrics", "parent_report_id"],
+      "relationships": ["parent (self-referential)", "children (self-referential)"],
+      "constraints": ["confidence BETWEEN 1 AND 10 OR NULL"]
+    },
+    {
+      "name": "AgentDecision",
+      "table": "agent_decisions",
+      "file": "backend/app/models/reports.py",
+      "key_fields": ["id", "decision_type", "symbol", "action", "recommended_shares", "recommended_amount", "reasoning", "confidence", "risk_score", "supporting_report_ids", "status", "human_override"],
+      "constraints": ["action IN ('BUY','SELL') OR NULL", "confidence BETWEEN 1 AND 10"]
+    },
+    {
+      "name": "PriceHistory",
+      "table": "price_history",
+      "file": "backend/app/models/market_data.py",
+      "key_fields": ["id", "symbol", "date", "open", "high", "low", "close", "volume"],
+      "constraints": ["UNIQUE (symbol, date)"]
+    },
+    {
+      "name": "FundamentalSnapshot",
+      "table": "fundamental_snapshots",
+      "file": "backend/app/models/market_data.py",
+      "key_fields": ["id", "symbol", "snapshot_date", "pe_ratio", "pb_ratio", "ps_ratio", "ev_ebitda", "roe", "roa", "debt_to_equity", "current_ratio", "revenue_ttm", "net_income_ttm", "free_cash_flow_ttm", "market_cap", "dividend_yield", "beta", "raw_data"]
+    },
+    {
+      "name": "SECFiling",
+      "table": "sec_filings",
+      "file": "backend/app/models/filings.py",
+      "key_fields": ["id", "symbol", "cik", "filing_type", "filing_date", "accession_number", "filing_url", "is_processed", "processed_at"],
+      "constraints": ["UNIQUE (accession_number)"]
+    },
+    {
+      "name": "EarningsTranscript",
+      "table": "earnings_transcripts",
+      "file": "backend/app/models/filings.py",
+      "key_fields": ["id", "symbol", "fiscal_year", "fiscal_quarter", "event_date", "full_text", "ceo_remarks", "cfo_remarks", "qa_section", "sentiment_score", "is_processed"],
+      "constraints": ["UNIQUE (symbol, fiscal_year, fiscal_quarter)", "fiscal_quarter BETWEEN 1 AND 4"]
+    }
+  ],
+
+  "api_endpoints": [
+    { "method": "POST",   "path": "/api/auth/login",                         "file": "backend/app/api/auth.py",      "description": "Login, get JWT" },
+    { "method": "GET",    "path": "/api/portfolio",                           "file": "backend/app/api/portfolio.py",  "description": "Portfolio summary" },
+    { "method": "GET",    "path": "/api/portfolio/holdings",                  "file": "backend/app/api/portfolio.py",  "description": "All holdings with P&L" },
+    { "method": "GET",    "path": "/api/portfolio/performance",               "file": "backend/app/api/portfolio.py",  "description": "Performance time series (query: period)" },
+    { "method": "GET",    "path": "/api/portfolio/transactions",              "file": "backend/app/api/portfolio.py",  "description": "Transaction history (query: page, limit)" },
+    { "method": "GET",    "path": "/api/reports",                             "file": "backend/app/api/reports.py",    "description": "List reports (query: agent, sector, symbol, type, page, limit)" },
+    { "method": "GET",    "path": "/api/reports/{id}",                        "file": "backend/app/api/reports.py",    "description": "Report detail with full content" },
+    { "method": "GET",    "path": "/api/reports/decision-trail/{decision_id}", "file": "backend/app/api/reports.py",   "description": "Decision reasoning chain (CEO -> analysts)" },
+    { "method": "GET",    "path": "/api/reports/latest-by-sector",            "file": "backend/app/api/reports.py",    "description": "Latest sector summaries" },
+    { "method": "GET",    "path": "/api/agents",                              "file": "backend/app/api/agents.py",     "description": "All agents with status, last run, next scheduled" },
+    { "method": "GET",    "path": "/api/agents/{name}",                       "file": "backend/app/api/agents.py",     "description": "Single agent detail + recent reports" },
+    { "method": "POST",   "path": "/api/agents/trigger/{name}",              "file": "backend/app/api/agents.py",     "description": "Manually trigger an agent or team run" },
+    { "method": "POST",   "path": "/api/agents/query",                       "file": "backend/app/api/agents.py",     "description": "Route a question to the appropriate agent" },
+    { "method": "POST",   "path": "/api/chat",                               "file": "backend/app/api/chat.py",       "description": "Natural language interface" },
+    { "method": "GET",    "path": "/api/chat/history",                        "file": "backend/app/api/chat.py",       "description": "Recent chat history (query: limit)" },
+    { "method": "GET",    "path": "/api/settings/risk-profile",               "file": "backend/app/api/settings.py",   "description": "Current risk profile" },
+    { "method": "PUT",    "path": "/api/settings/risk-profile",               "file": "backend/app/api/settings.py",   "description": "Update risk profile (partial update)" },
+    { "method": "GET",    "path": "/api/settings/watchlist",                  "file": "backend/app/api/settings.py",   "description": "Current watchlist" },
+    { "method": "POST",   "path": "/api/settings/watchlist",                  "file": "backend/app/api/settings.py",   "description": "Add symbol to watchlist" },
+    { "method": "DELETE", "path": "/api/settings/watchlist/{symbol}",         "file": "backend/app/api/settings.py",   "description": "Remove from watchlist" },
+    { "method": "GET",    "path": "/api/settings/schedule",                   "file": "backend/app/api/settings.py",   "description": "Current Celery beat schedule" },
+    { "method": "WS",     "path": "/api/ws",                                 "file": "backend/app/api/websocket.py",  "description": "Real-time updates: agent status, reports, decisions, prices" }
+  ],
+
+  "services": [
+    { "name": "data_ingestion",     "file": "backend/app/services/data_ingestion.py",     "description": "SEC EDGAR, yfinance, FMP API wrappers with tenacity retry" },
+    { "name": "sentiment_service",  "file": "backend/app/services/sentiment_service.py",  "description": "FinBERT pipeline + pyfin-sentiment wrapper" },
+    { "name": "portfolio_manager",  "file": "backend/app/services/portfolio_manager.py",  "description": "Execute trades, update holdings, validate constraints" },
+    { "name": "report_service",     "file": "backend/app/services/report_service.py",     "description": "CRUD for reports, decision trail queries" },
+    { "name": "chat_router",        "file": "backend/app/services/chat_router.py",        "description": "Intent classification + routing logic" }
+  ]
+}
