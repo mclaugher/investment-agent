@@ -37,6 +37,66 @@ services:
     environment:
       ANONYMIZED_TELEMETRY: "false"
 
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "${BACKEND_PORT:-8080}:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      chromadb:
+        condition: service_started
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://superhuman:${DB_PASSWORD:-superhuman_secure_password_change_me}@db:5432/superhuman_alpha_fund
+      REDIS_URL: redis://redis:6379/0
+      CHROMA_HOST: chromadb
+      CHROMA_PORT: 8000
+    volumes:
+      - filing_data:/app/data/filings
+
+  celery_worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    command: celery -A app.celery_app worker -l info -c 4 -Q default,analysis,data
+    restart: unless-stopped
+    depends_on:
+      - backend
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://superhuman:${DB_PASSWORD:-superhuman_secure_password_change_me}@db:5432/superhuman_alpha_fund
+      REDIS_URL: redis://redis:6379/0
+      CHROMA_HOST: chromadb
+      CHROMA_PORT: 8000
+    volumes:
+      - filing_data:/app/data/filings
+
+  celery_beat:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    command: celery -A app.celery_app beat -l info --scheduler celery.beat:PersistentScheduler
+    restart: unless-stopped
+    depends_on:
+      - redis
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-3000}:80"
+    depends_on:
+      - backend
+
 volumes:
   pgdata:
   chromadata:
+  filing_data:
