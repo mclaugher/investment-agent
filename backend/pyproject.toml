@@ -39,6 +39,7 @@ dev = [
     "pytest-asyncio>=0.24",
     "aiosqlite>=0.20",
     "httpx>=0.28",
+    "ruff>=0.8",
 ]
 
 [tool.setuptools.packages.find]
@@ -46,6 +47,18 @@ include = ["app*"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+# Conservative rule set so newly edited files stay clean without churning
+# the existing codebase. Widen over time as the repo is brought into line.
+select = ["E", "F", "I", "W"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["app"]
 
 [build-system]
 requires = ["setuptools>=75.0"]

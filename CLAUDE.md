@@ -83,4 +83,21 @@ When asked to “implement Superhuman Alpha Fund” or similar:
    - Ensure all tests described in “Testing Strategy” exist and pass. [file:37]
    - Add any missing wiring, error handling, and logging required by “Data Management Policies” and “Hard Constraints”. [file:37]
 
+## Verification (close every task on an artifact, not a claim)
+
+Before saying a change is done, run the relevant gate and report the real result. Or run `/check` to do all of it.
+
+- Backend tests: `cd backend && pytest tests/test_tools tests/test_services tests/test_api -v`
+- Backend lint/format (must pass for files you touch): `cd backend && ruff check . && ruff format --check .`
+- Frontend build (runs `tsc` + `vite`): `cd frontend && npm run build`
+- Frontend lint: `cd frontend && npm run lint`
+
+Do not weaken or delete a test to make a failure pass. CI (`.github/workflows/ci.yml`) treats tests and the frontend build as hard gates; ruff and eslint are advisory while the legacy code is brought into line.
+
+## Local tooling (`.claude/`)
+
+- **Hooks** (enforced, not optional): edited `.py`/frontend files are auto-formatted; reads of `.env`/secrets and dangerous shell commands (`rm -rf` of broad paths, force-push) are blocked.
+- **Commands:** `/check` (verify), `/spec <topic>` (load governing spec sections before coding), `/pr-description`, `/changelog`.
+- **Subagents (read-only):** `spec-explorer` (map a task onto the spec + code) and `code-reviewer` (fresh-eyes diff review). Delegate fan-out exploration to keep the main thread clean; do edits in the main session.
+
 For each phase, ask the human whether to proceed before making large changes.
