@@ -6,3 +6,6 @@ node_modules/
 dist/
 .env
 *.db
+
+# Claude Code personal settings (per-developer; e.g. permission mode)
+.claude/settings.local.json
