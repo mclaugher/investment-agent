@@ -20,10 +20,21 @@ into the repo so it travels with the codebase and the team.
 │   ├── spec.md              /spec <topic> — load governing specifications.md sections
 │   ├── pr-description.md     /pr-description — draft a PR body from the real diff
 │   └── changelog.md          /changelog — changelog from commits
-└── agents/              # read-only subagents (context firewalls)
-    ├── spec-explorer.md     map a task onto the spec + code (haiku, fast)
-    └── code-reviewer.md     fresh-eyes diff review against explicit criteria
+├── agents/              # read-only subagents (context firewalls)
+│   ├── spec-explorer.md     map a task onto the spec + code (haiku, fast)
+│   └── code-reviewer.md     fresh-eyes diff review against explicit criteria
+└── skills/              # vendored 3rd-party skills (see ATTRIBUTION.md)
+    └── ...                  Matt Pocock's "Skills For Real Engineers" (MIT)
 ```
+
+## Vendored skills (`skills/`)
+
+The 17 folders under `.claude/skills/` are Matt Pocock's
+[`mattpocock/skills`](https://github.com/mattpocock/skills) plugin set, vendored
+in (MIT — see `skills/ATTRIBUTION.md`). Highlights: `/tdd`, `/diagnosing-bugs`,
+`/grilling` (stress-test a plan), `/triage`, `/to-prd`, `/to-issues`,
+`/domain-modeling`, `/codebase-design`. **Run `/setup-matt-pocock-skills` once**
+to wire up the issue tracker + doc layout the engineering skills expect.
 
 ## Design principles (why it's shaped this way)
 
